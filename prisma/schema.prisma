@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  nombre    String   @default("")
+  apellido  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blogs     Blog[]
+  
+  @@map("users")
+}
+
+model Blog {
+  id                Int      @id @default(autoincrement())
+  titulo            String
+  descripcionCorta  String   @db.Text
+  descripcion       String   @db.LongText
+  imagen            String?
+  imagePublicId     String?
+  estado            String   @default("activo")
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("blogs")
+  @@index([userId])
+}
