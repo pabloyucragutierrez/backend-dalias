@@ -9,12 +9,17 @@ export class ContactoService {
 
   constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASSWORD'),
-      },
-    });
+  host: 'smtp.gmail.com',
+  port: 465, // Cambiar de puerto
+  secure: true, // true para puerto 465
+  auth: {
+    user: this.configService.get<string>('EMAIL_USER'),
+    pass: this.configService.get<string>('EMAIL_PASSWORD'),
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
   }
 
   async enviarContacto(createContactoDto: CreateContactoDto) {
