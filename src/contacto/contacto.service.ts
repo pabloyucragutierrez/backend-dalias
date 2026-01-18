@@ -121,15 +121,6 @@ export class ContactoService {
                 <div class="info-value">${mensaje}</div>
               </div>
             </div>
-            
-            <div class="info-row" style="border-left-color: #003e5c;">
-              <div class="info-label">📅 Fecha de Recepción</div>
-              <div class="info-value">${new Date().toLocaleString('es-PE', { 
-                timeZone: 'America/Lima',
-                dateStyle: 'full',
-                timeStyle: 'short'
-              })}</div>
-            </div>
           </div>
           
           <div class="footer">
