@@ -6,10 +6,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Habilitar CORS
+  // ✅ CORS abierto para cualquier frontend (producción + local)
   app.enableCors();
 
-  // Validación global
+  // ✅ Validaciones globales
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,19 +18,23 @@ async function bootstrap() {
     }),
   );
 
-  // Configuración de Swagger
+  // ✅ Swagger
   const config = new DocumentBuilder()
-    .setTitle('API de Autenticación')
-    .setDescription('API REST para autenticación de usuarios con JWT')
+    .setTitle('API Dalias')
+    .setDescription('API REST del backend Dalias')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3001);
-  console.log(`🚀 Aplicación corriendo en: http://localhost:3001`);
-  console.log(`📚 Documentación Swagger: http://localhost:3001/api/docs`);
+  // ⚠️ IMPORTANTE PARA RENDER
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+
+  console.log(`🚀 API corriendo en puerto ${port}`);
+  console.log(`📚 Swagger: /api/docs`);
 }
+
 bootstrap();
