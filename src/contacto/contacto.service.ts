@@ -9,12 +9,10 @@ export class ContactoService {
 
   constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      secure: false,
+      service: 'gmail',
       auth: {
-        user: 'apikey',
-        pass: this.configService.get<string>('SENDGRID_API_KEY'),
+        user: this.configService.get<string>('EMAIL_USER'),
+        pass: this.configService.get<string>('EMAIL_PASSWORD'),
       },
     });
   }
@@ -136,7 +134,7 @@ export class ContactoService {
     `;
 
     await this.transporter.sendMail({
-      from: this.configService.get<string>('EMAIL_FROM'),
+      from: `"Residencia Las Dalias" <${this.configService.get<string>('EMAIL_USER')}>`,
       to: 'pabloyucragutierrez@gmail.com',
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,
