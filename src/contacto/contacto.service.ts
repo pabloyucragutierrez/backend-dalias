@@ -8,14 +8,26 @@ export class ContactoService {
   private transporter: nodemailer.Transporter;
 
   constructor(private configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASSWORD'),
-      },
-    });
-  }
+  this.transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // 🔥 obligatorio en Render
+    auth: {
+      user: this.configService.get<string>('EMAIL_USER'),
+      pass: this.configService.get<string>('EMAIL_PASSWORD'), // APP PASSWORD
+    },
+  });
+
+  // 🔍 TEST SMTP (verás el error real en Render logs)
+  this.transporter.verify((error) => {
+    if (error) {
+      console.error('❌ SMTP ERROR:', error);
+    } else {
+      console.log('✅ SMTP listo para enviar correos');
+    }
+  });
+}
+
 
   async enviarContacto(createContactoDto: CreateContactoDto) {
     const { tipoConsulta, nombre, mensaje } = createContactoDto;
