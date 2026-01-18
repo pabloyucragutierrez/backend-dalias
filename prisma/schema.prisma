@@ -37,3 +37,15 @@ model Blog {
   @@map("blogs")
   @@index([userId])
 }
+
+model Actividad {
+  id             Int      @id @default(autoincrement())
+  titulo         String
+  descripcion    String   @db.Text
+  imagen         String?
+  imagePublicId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("actividades")
+}

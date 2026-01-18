@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
-import { CloudinaryService } from './cloudinary.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class BlogsService {
@@ -16,7 +16,7 @@ export class BlogsService {
     let imagePublicId = null;
 
     if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
+      const uploadResult = await this.cloudinaryService.uploadImage(file, 'blogs');
       imagen = uploadResult.url;
       imagePublicId = uploadResult.publicId;
     }
@@ -102,7 +102,7 @@ export class BlogsService {
       if (blog.imagePublicId) {
         await this.cloudinaryService.deleteImage(blog.imagePublicId);
       }
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
+      const uploadResult = await this.cloudinaryService.uploadImage(file, 'blogs');
       imagen = uploadResult.url;
       imagePublicId = uploadResult.publicId;
     }
@@ -146,4 +146,4 @@ export class BlogsService {
 
     return { message: 'Blog eliminado exitosamente' };
   }
-} 
+}

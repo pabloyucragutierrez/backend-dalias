@@ -12,11 +12,11 @@ export class CloudinaryService {
     });
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<{ url: string; publicId: string }> {
+  async uploadImage(file: Express.Multer.File, folder: string): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: 'blogs',
+          folder,
           resource_type: 'auto',
         },
         (error, result) => {
