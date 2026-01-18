@@ -9,17 +9,14 @@ export class ContactoService {
 
   constructor(private configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465, // Cambiar de puerto
-  secure: true, // true para puerto 465
-  auth: {
-    user: this.configService.get<string>('EMAIL_USER'),
-    pass: this.configService.get<string>('EMAIL_PASSWORD'),
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+      host: 'smtp.sendgrid.net',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'apikey',
+        pass: this.configService.get<string>('SENDGRID_API_KEY'),
+      },
+    });
   }
 
   async enviarContacto(createContactoDto: CreateContactoDto) {
@@ -139,7 +136,7 @@ export class ContactoService {
     `;
 
     await this.transporter.sendMail({
-      from: `"Residencia Las Dalias" <${this.configService.get<string>('EMAIL_USER')}>`,
+      from: this.configService.get<string>('EMAIL_FROM'),
       to: 'pabloyucragutierrez@gmail.com',
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,
