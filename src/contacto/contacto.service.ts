@@ -1,20 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { CreateContactoDto } from './dto/create-contacto.dto';
 
 @Injectable()
 export class ContactoService {
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
 
   constructor(private configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASSWORD'),
-      },
-    });
+    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
   }
 
   async enviarContacto(createContactoDto: CreateContactoDto) {
@@ -133,9 +127,9 @@ export class ContactoService {
       </html>
     `;
 
-    await this.transporter.sendMail({
-      from: `"Residencia Las Dalias" <${this.configService.get<string>('EMAIL_USER')}>`,
-      to: 'pabloyucragutierrez@gmail.com',
+    await this.resend.emails.send({
+      from: 'Residencia Las Dalias <contactog@pablogutierrezz.com>', // Cambia esto cuando verifiques tu dominio
+      to: ['pabloyucragutierrez@gmail.com'],
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,
     });

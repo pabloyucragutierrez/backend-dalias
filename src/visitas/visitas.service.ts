@@ -1,24 +1,18 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { CreateVisitaDto } from './dto/create-visita.dto';
 
 @Injectable()
 export class VisitasService {
-  private transporter: nodemailer.Transporter;
+  private resend: Resend;
 
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
   ) {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASSWORD'),
-      },
-    });
+    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
   }
 
   async agendarVisita(createVisitaDto: CreateVisitaDto) {
@@ -471,17 +465,17 @@ export class VisitasService {
     `;
 
     // Enviar correo al administrador
-    await this.transporter.sendMail({
-      from: `"Residencia Las Dalias - Solicitud de Visita" <${this.configService.get<string>('EMAIL_USER')}>`,
-      to: 'pabloyucragutierrez@gmail.com',
+    await this.resend.emails.send({
+      from: 'Residencia Las Dalias <contactog@pablogutierrezz.com>', // Cambia esto cuando verifiques tu dominio
+      to: ['pabloyucragutierrez@gmail.com'],
       subject: `🗓️ Nueva Solicitud de Visita - ${nombreApellido}`,
       html: htmlEmailAdmin,
     });
 
     // Enviar correo de confirmación al cliente
-    await this.transporter.sendMail({
-      from: `"Residencia Las Dalias" <${this.configService.get<string>('EMAIL_USER')}>`,
-      to: correoElectronico,
+    await this.resend.emails.send({
+      from: 'Residencia Las Dalias <onboarding@resend.dev>', // Cambia esto cuando verifiques tu dominio
+      to: [correoElectronico],
       subject: `✅ Confirmación de Visita - Residencia Las Dalias`,
       html: htmlEmailCliente,
     });
