@@ -128,7 +128,7 @@ export class ContactoService {
     `;
 
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <contactog@pablogutierrezz.com>', // Cambia esto cuando verifiques tu dominio
+      from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>', // Cambia esto cuando verifiques tu dominio
       to: ['pabloyucragutierrez@gmail.com'],
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,
