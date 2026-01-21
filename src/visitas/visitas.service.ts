@@ -4,6 +4,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Resend } from 'resend';
 import { CreateVisitaDto } from './dto/create-visita.dto';
 
+interface ConclusionEvaluacion {
+  pregunta: string;
+  conclusion: string;
+  porcentaje: number;
+}
+
+interface PerfilGlobal {
+  clasificacion: string;
+  porcentajeTotal: number;
+  descripcion: string;
+}
+
 @Injectable()
 export class VisitasService {
   private resend: Resend;
@@ -60,57 +72,52 @@ export class VisitasService {
 
     // Generar HTML de evaluación si existe
     let evaluacionHtml = '';
-    if (evaluacion) {
-      const condiciones = [];
-      if (evaluacion.condiciones) {
-        if (evaluacion.condiciones.hipertension) condiciones.push('Hipertensión');
-        if (evaluacion.condiciones.diabetes) condiciones.push('Diabetes');
-        if (evaluacion.condiciones.dificultadesCaminar) condiciones.push('Dificultades para caminar');
-        if (evaluacion.condiciones.incontinencia) condiciones.push('Incontinencia');
-        if (evaluacion.condiciones.problemasAudicionVision) condiciones.push('Problemas de audición o visión');
-        if (evaluacion.condiciones.postOperatoria) condiciones.push('Recuperación post operatoria');
-        if (evaluacion.condiciones.otra) condiciones.push('Otra');
-      }
+    let perfilGlobalHtml = '';
 
+    if (evaluacion) {
+      const conclusiones = this.generarConclusionesEvaluacion(evaluacion);
+      const perfilGlobal = this.calcularPerfilGlobal(conclusiones);
+
+      // Generar HTML con las conclusiones
       evaluacionHtml = `
         <div class="evaluacion-section">
           <h3 style="color: #003e5c; margin-top: 30px; margin-bottom: 20px; border-bottom: 3px solid #d9b756; padding-bottom: 10px;">
-            📋 Evaluación Inicial del Adulto Mayor
+            📋 Resultados de la Evaluación Inicial
           </h3>
           
-          <div class="info-row">
-            <div class="info-label">1. Autonomía y movilidad</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.movilidad)}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">2. Actividades de la vida diaria (AVD)</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.avd)}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">3. Estado cognitivo</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.cognitivo)}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">4. Estado emocional y conducta</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.emocional)}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">5. Condiciones médicas relevantes</div>
-            <div class="info-value">${condiciones.length > 0 ? condiciones.join(', ') : 'No especificadas'}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">6. Medicación y cuidados especiales</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.medicacion)}</div>
-          </div>
-          
-          <div class="info-row">
-            <div class="info-label">7. Motivo principal de la consulta</div>
-            <div class="info-value">${this.formatearRespuesta(evaluacion.motivo)}</div>
+          ${conclusiones
+            .map(
+              (item) => `
+            <div class="conclusion-item" style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #d9b756; border-radius: 5px;">
+              <div style="color: #003e5c; font-weight: bold; font-size: 14px; margin-bottom: 8px;">
+                ${item.pregunta}
+              </div>
+              <div style="color: #333; font-size: 16px; line-height: 1.6;">
+                ${item.conclusion}
+              </div>
+            </div>
+          `,
+            )
+            .join('')}
+        </div>
+      `;
+
+      // Generar HTML del perfil global
+      perfilGlobalHtml = `
+        <div class="perfil-global" style="background: linear-gradient(135deg, #003e5c 0%, #005a7f 100%); color: white; padding: 25px; border-radius: 10px; margin: 30px 0; text-align: center;">
+          <h3 style="color: #d9b756; margin: 0 0 15px 0; font-size: 22px;">
+            🎯 Perfil Global del Adulto Mayor
+          </h3>
+          <div style="background-color: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; margin-top: 15px;">
+            <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: #d9b756;">
+              ${perfilGlobal.porcentajeTotal}%
+            </p>
+            <p style="font-size: 20px; font-weight: bold; margin: 10px 0;">
+              ${perfilGlobal.clasificacion}
+            </p>
+            <p style="font-size: 16px; margin: 10px 0; line-height: 1.6;">
+              ${perfilGlobal.descripcion}
+            </p>
           </div>
         </div>
       `;
@@ -139,7 +146,7 @@ export class VisitasService {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           }
           .header {
-            background: linear-gradient(135deg, #003e5c 0%, #005a7f 100%);
+            background: #f5f5ef;
             padding: 30px 20px;
             text-align: center;
           }
@@ -155,7 +162,7 @@ export class VisitasService {
             font-weight: bold;
           }
           .header p {
-            color: #aed3da;
+            color: #003e5c;
             margin: 10px 0 0 0;
             font-size: 14px;
           }
@@ -213,7 +220,7 @@ export class VisitasService {
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="https://dalias.pablogutierrezz.com/logo_header2.png" alt="Residencia Las Dalias">
+            <img src="https://dalias.pablogutierrezz.com/logo_header.png" alt="Residencia Las Dalias">
             <h1>🗓️ Nueva Solicitud de Visita</h1>
             <p>Se ha recibido una nueva solicitud para agendar una visita</p>
           </div>
@@ -247,12 +254,16 @@ export class VisitasService {
               <div class="info-value">${this.formatearDependencia(nivelDependencia)}</div>
             </div>
             
-            ${observacionesSalud ? `
+            ${
+              observacionesSalud
+                ? `
             <div class="info-row">
               <div class="info-label">Observaciones de Salud</div>
               <div class="info-value">${observacionesSalud}</div>
             </div>
-            ` : ''}
+            `
+                : ''
+            }
 
             <div class="cita-destacada">
               <h3>📅 Fecha y Hora de la Visita</h3>
@@ -260,6 +271,7 @@ export class VisitasService {
               <p>🕐 ${horaSeleccionada}</p>
             </div>
 
+            ${perfilGlobalHtml}
             ${evaluacionHtml}
           </div>
           
@@ -312,7 +324,7 @@ export class VisitasService {
             font-weight: bold;
           }
           .header p {
-            color: #aed3da;
+            color: #003e5c;
             margin: 10px 0 0 0;
             font-size: 14px;
           }
@@ -412,7 +424,7 @@ export class VisitasService {
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="https://dalias.pablogutierrezz.com/logo_header2.png" alt="Residencia Las Dalias">
+            <img src="https://dalias.pablogutierrezz.com/logo_header.png" alt="Residencia Las Dalias">
             <h1>✅ Visita Confirmada</h1>
             <p>Hemos recibido tu solicitud exitosamente</p>
           </div>
@@ -474,7 +486,7 @@ export class VisitasService {
 
     // Enviar correo de confirmación al cliente
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <onboarding@resend.dev>', // Cambia esto cuando verifiques tu dominio
+      from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
       to: [correoElectronico],
       subject: `✅ Confirmación de Visita - Residencia Las Dalias`,
       html: htmlEmailCliente,
@@ -483,6 +495,306 @@ export class VisitasService {
     return {
       success: true,
       message: 'Solicitud de visita enviada correctamente',
+    };
+  }
+
+  // NUEVO MÉTODO: Generar conclusiones de la evaluación
+  private generarConclusionesEvaluacion(
+    evaluacion: any,
+  ): ConclusionEvaluacion[] {
+    const conclusiones: ConclusionEvaluacion[] = [];
+
+    // 1. Autonomía y movilidad
+    if (evaluacion.movilidad) {
+      const movilidadMap = {
+        solo: {
+          conclusion:
+            '100% - Adulto mayor independiente en movilidad. Bajo riesgo de caídas si el entorno es adecuado.',
+          porcentaje: 100,
+        },
+        'apoyo-parcial': {
+          conclusion:
+            '70% - Dependencia leve. Puede requerir bastón, andador o supervisión ocasional.',
+          porcentaje: 70,
+        },
+        'ayuda-constante': {
+          conclusion:
+            '40% - Dependencia moderada. Riesgo alto de caídas, requiere acompañamiento continuo.',
+          porcentaje: 40,
+        },
+        'en-cama': {
+          conclusion:
+            '10% - Dependencia severa. Riesgo de úlceras, sarcopenia y complicaciones respiratorias.',
+          porcentaje: 10,
+        },
+      };
+
+      const resultado = movilidadMap[evaluacion.movilidad];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '1. Autonomía y movilidad',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    // 2. Actividades de la Vida Diaria (AVD)
+    if (evaluacion.avd) {
+      const avdMap = {
+        independiente: {
+          conclusion:
+            '100% - Funcionalidad conservada. Equivale a Barthel alto.',
+          porcentaje: 100,
+        },
+        supervision: {
+          conclusion: '75% - Autonomía parcial. Puede vivir con apoyo leve.',
+          porcentaje: 75,
+        },
+        'ayuda-constante': {
+          conclusion: '40% - Dependencia moderada. Necesita cuidador diario.',
+          porcentaje: 40,
+        },
+        'no-puede': {
+          conclusion: '10% - Dependencia severa. Requiere cuidado integral.',
+          porcentaje: 10,
+        },
+      };
+
+      const resultado = avdMap[evaluacion.avd];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '2. Actividades de la Vida Diaria (AVD)',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    // 3. Estado cognitivo
+    if (evaluacion.cognitivo) {
+      const cognitivoMap = {
+        'sin-dificultades': {
+          conclusion: '100% - Cognición conservada. Puede tomar decisiones.',
+          porcentaje: 100,
+        },
+        'olvidos-ocasionales': {
+          conclusion:
+            '80% - Deterioro cognitivo leve compatible con envejecimiento.',
+          porcentaje: 80,
+        },
+        'confusion-frecuente': {
+          conclusion: '40% - Sospecha de deterioro cognitivo moderado.',
+          porcentaje: 40,
+        },
+        'diagnostico-deterioro': {
+          conclusion:
+            '10% - Dependencia cognitiva. Necesita supervisión permanente.',
+          porcentaje: 10,
+        },
+      };
+
+      const resultado = cognitivoMap[evaluacion.cognitivo];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '3. Estado cognitivo (orientativo)',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    // 4. Estado emocional y conducta
+    if (evaluacion.emocional) {
+      const emocionalMap = {
+        estable: {
+          conclusion: '100% - Buen ajuste emocional.',
+          porcentaje: 100,
+        },
+        'a-veces-triste': {
+          conclusion:
+            '75% - Riesgo emocional leve. Recomendable estimulación social.',
+          porcentaje: 75,
+        },
+        irritable: {
+          conclusion:
+            '40% - Riesgo de depresión geriátrica. Necesita abordaje emocional.',
+          porcentaje: 40,
+        },
+        'cambios-conducta': {
+          conclusion:
+            '20% - Posible trastorno neuropsiquiátrico. Requiere seguimiento.',
+          porcentaje: 20,
+        },
+      };
+
+      const resultado = emocionalMap[evaluacion.emocional];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '4. Estado emocional y conducta',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    // 5. Condiciones médicas relevantes
+    if (evaluacion.condiciones) {
+      const condicionesTexto: string[] = [];
+
+      if (
+        evaluacion.condiciones.hipertension ||
+        evaluacion.condiciones.diabetes
+      ) {
+        condicionesTexto.push('Crónica controlable');
+      }
+      if (evaluacion.condiciones.postOperatoria) {
+        condicionesTexto.push('Dependencia temporal');
+      }
+      if (evaluacion.condiciones.dificultadesCaminar) {
+        condicionesTexto.push('Aumenta dependencia funcional');
+      }
+      if (evaluacion.condiciones.problemasAudicionVision) {
+        condicionesTexto.push('Riesgo de aislamiento');
+      }
+      if (evaluacion.condiciones.incontinencia) {
+        condicionesTexto.push('Aumenta nivel de cuidado');
+      }
+      if (evaluacion.condiciones.otra) {
+        condicionesTexto.push('Evaluación individual');
+      }
+
+      if (condicionesTexto.length > 0) {
+        conclusiones.push({
+          pregunta: '5. Condiciones médicas relevantes',
+          conclusion: condicionesTexto.join(', '),
+          porcentaje: 0, // No se usa para el cálculo del promedio
+        });
+      }
+    }
+
+    // 6. Medicación y cuidados especiales
+    if (evaluacion.medicacion) {
+      const medicacionMap = {
+        no: {
+          conclusion:
+            '100% - Adulto mayor autónomo en su tratamiento. Comprende, recuerda y cumple su medicación.',
+          porcentaje: 100,
+        },
+        recordatorio: {
+          conclusion:
+            '70% - Dependencia leve. Requiere apoyo cognitivo o supervisión puntual.',
+          porcentaje: 70,
+        },
+        'administracion-completa': {
+          conclusion:
+            '30% - Dependencia moderada–severa. Incapaz de manejar su tratamiento de forma segura.',
+          porcentaje: 30,
+        },
+      };
+
+      const resultado = medicacionMap[evaluacion.medicacion];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '6. Medicación y cuidados especiales',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    // 7. Motivo principal de la consulta
+    if (evaluacion.motivo) {
+      const motivoMap = {
+        'centro-dia': {
+          conclusion:
+            '90% - Adulto mayor mayormente autónomo, busca socialización y prevención.',
+          porcentaje: 90,
+        },
+        'descanso-cuidador': {
+          conclusion: '75% - Dependencia leve–moderada o sobrecarga familiar.',
+          porcentaje: 75,
+        },
+        'recuperacion-temporal': {
+          conclusion:
+            '65% - Dependencia transitoria, con potencial de recuperación.',
+          porcentaje: 65,
+        },
+        'cuidado-permanente': {
+          conclusion: '35% - Dependencia moderada–severa establecida.',
+          porcentaje: 35,
+        },
+        otro: {
+          conclusion: '50% - Motivo no claro, requiere evaluación individual.',
+          porcentaje: 50,
+        },
+      };
+
+      const resultado = motivoMap[evaluacion.motivo];
+      if (resultado) {
+        conclusiones.push({
+          pregunta: '7. Motivo principal de la consulta',
+          conclusion: resultado.conclusion,
+          porcentaje: resultado.porcentaje,
+        });
+      }
+    }
+
+    return conclusiones;
+  }
+
+  // NUEVO MÉTODO: Calcular perfil global
+  private calcularPerfilGlobal(
+    conclusiones: ConclusionEvaluacion[],
+  ): PerfilGlobal {
+    // Filtrar solo las conclusiones que tienen porcentaje válido (excluir condiciones médicas)
+    const conclusionesConPorcentaje = conclusiones.filter(
+      (c) => c.porcentaje > 0,
+    );
+
+    if (conclusionesConPorcentaje.length === 0) {
+      return {
+        clasificacion: 'No evaluado',
+        porcentajeTotal: 0,
+        descripcion: 'No se pudo calcular el perfil.',
+      };
+    }
+
+    // Calcular promedio
+    const sumaPorcentajes = conclusionesConPorcentaje.reduce(
+      (sum, c) => sum + c.porcentaje,
+      0,
+    );
+    const porcentajeTotal = Math.round(
+      sumaPorcentajes / conclusionesConPorcentaje.length,
+    );
+
+    // Determinar clasificación según el porcentaje
+    let clasificacion = '';
+    let descripcion = '';
+
+    if (porcentajeTotal >= 85) {
+      clasificacion = 'Independencia Funcional';
+      descripcion =
+        'El adulto mayor presenta un alto grado de autonomía. Requiere mínimo apoyo y puede desenvolverse con independencia en la mayoría de actividades.';
+    } else if (porcentajeTotal >= 65) {
+      clasificacion = 'Dependencia Leve';
+      descripcion =
+        'El adulto mayor mantiene buena autonomía con necesidades puntuales de apoyo. Puede vivir de forma semi-independiente con supervisión ocasional.';
+    } else if (porcentajeTotal >= 40) {
+      clasificacion = 'Dependencia Moderada';
+      descripcion =
+        'El adulto mayor requiere asistencia regular en diversas actividades diarias. Necesita acompañamiento y cuidados especializados frecuentes.';
+    } else {
+      clasificacion = 'Dependencia Severa';
+      descripcion =
+        'El adulto mayor necesita cuidado integral y supervisión permanente. Requiere atención especializada continua para garantizar su bienestar y seguridad.';
+    }
+
+    return {
+      clasificacion,
+      porcentajeTotal,
+      descripcion,
     };
   }
 
@@ -510,62 +822,57 @@ export class VisitasService {
         horaSeleccionada: true,
       },
     });
-
     return {
       horasOcupadas: citas.map((cita) => cita.horaSeleccionada),
     };
   }
-
   private formatearDependencia(nivel: string): string {
     const niveles = {
-      'independiente': 'Independiente',
+      independiente: 'Independiente',
       'semi-dependiente': 'Semi dependiente',
-      'dependiente': 'Dependiente',
+      dependiente: 'Dependiente',
     };
     return niveles[nivel] || nivel;
   }
-
   private formatearRespuesta(valor: string): string {
     if (!valor) return 'No especificado';
-    
     const respuestas = {
       // Movilidad
-      'solo': 'Se moviliza solo',
+      solo: 'Se moviliza solo',
       'apoyo-parcial': 'Necesita apoyo parcial',
-      'ayuda-constante-movilidad': 'Requiere ayuda constante',
+      'ayuda-constante': 'Requiere ayuda constante',
       'en-cama': 'Permanece mayormente en cama',
-      
+
       // AVD
-      'independiente': 'De forma independiente',
-      'supervision': 'Con supervisión',
-      'ayuda-constante': 'Con ayuda constante',
+      independiente: 'De forma independiente',
+      supervision: 'Con supervisión',
       'no-puede': 'No puede realizarlas solo',
-      
+
       // Cognitivo
       'sin-dificultades': 'No presenta dificultades',
       'olvidos-ocasionales': 'Olvidos ocasionales',
       'confusion-frecuente': 'Confusión frecuente',
       'diagnostico-deterioro': 'Diagnóstico de deterioro cognitivo o demencia',
-      
+
       // Emocional
-      'estable': 'Estable y tranquilo',
+      estable: 'Estable y tranquilo',
       'a-veces-triste': 'A veces triste o ansioso',
-      'irritable': 'Frecuentemente irritable o deprimido',
+      irritable: 'Frecuentemente irritable o deprimido',
       'cambios-conducta': 'Presenta cambios de conducta importantes',
-      
+
       // Medicación
-      'no': 'No',
-      'recordatorio': 'Sí, recordatorio',
+      no: 'No',
+      recordatorio: 'Sí, recordatorio',
       'administracion-completa': 'Sí, administración completa',
-      
+
       // Motivo
       'cuidado-permanente': 'Cuidado permanente',
       'recuperacion-temporal': 'Recuperación temporal / post operatoria',
       'centro-dia': 'Centro de día',
       'descanso-cuidador': 'Descanso del cuidador',
-      'otro': 'Otro',
+      otro: 'Otro',
     };
-    
+
     return respuestas[valor] || valor;
   }
 }

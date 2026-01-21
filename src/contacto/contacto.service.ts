@@ -36,7 +36,7 @@ export class ContactoService {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
           }
           .header {
-            background: linear-gradient(135deg, #003e5c 0%, #005a7f 100%);
+            background: #f5f5ef;
             padding: 30px 20px;
             text-align: center;
           }
@@ -89,12 +89,38 @@ export class ContactoService {
             color: #d9b756;
             text-decoration: none;
           }
+          .footer p {
+            margin: 8px 0;
+          }
+          .footer-socials {
+            margin: 15px 0;
+            text-align: center;
+          }
+          .social-link {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin: 0 4px;
+            background-color: #d9b756;
+            border-radius: 50%;
+            text-decoration: none;
+            padding: 5px;
+            transition: background-color 0.3s;
+          }
+          .social-link:hover {
+            background-color: #c7a645;
+          }
+          .social-link img {
+            width: 100%;
+            height: 100%;
+            display: block;
+          }
         </style>
       </head>
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="https://dalias.pablogutierrezz.com/logo_header2.png" alt="Residencia Las Dalias">
+            <img src="https://dalias.pablogutierrezz.com/logo_header.png" alt="Residencia Las Dalias">
             <h1>Nueva Consulta Recibida</h1>
           </div>
           
@@ -105,7 +131,7 @@ export class ContactoService {
             </div>
             
             <div class="info-row">
-              <div class="info-label">🎯 Servicio de Interés</div>
+              <div class="info-label">🎯 ¿Qué servicio le interesa?</div>
               <div class="info-value">${tipoConsulta}</div>
             </div>
             
@@ -121,6 +147,18 @@ export class ContactoService {
             <p><strong>Residencia Las Dalias</strong></p>
             <p>Las Dalias 156, La Molina 15024, Perú</p>
             <p>📧 <a href="mailto:residencialasdalias156@gmail.com">residencialasdalias156@gmail.com</a></p>
+            
+            <div class="footer-socials">
+              <a href="https://www.facebook.com/p/Residencia-Las-Dalias-100094992432554/" class="social-link" title="Facebook" target="_blank">
+                <img src="https://res.cloudinary.com/dd5mnpde5/image/upload/v1768945481/81341_opqlde.png" alt="Facebook">
+              </a>
+              <a href="https://www.instagram.com/residencialasdalias" class="social-link" title="Instagram" target="_blank">
+                <img src="https://res.cloudinary.com/dd5mnpde5/image/upload/v1768945481/logotipo-de-instagram_fwwxqy.png" alt="Instagram">
+              </a>
+              <a href="https://www.youtube.com/@ResidenciaLasDalias" class="social-link" title="YouTube" target="_blank">
+                <img src="https://res.cloudinary.com/dd5mnpde5/image/upload/v1768945481/youtube_zrp6jo.png" alt="YouTube">
+              </a>
+            </div>
           </div>
         </div>
       </body>
@@ -128,7 +166,7 @@ export class ContactoService {
     `;
 
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>', // Cambia esto cuando verifiques tu dominio
+      from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>',
       to: ['pabloyucragutierrez@gmail.com'],
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,

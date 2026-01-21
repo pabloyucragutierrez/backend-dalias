@@ -20,7 +20,7 @@ export class VisitasController {
   @Get('verificar-disponibilidad')
   @ApiOperation({ summary: 'Verificar si una fecha y hora está disponible' })
   @ApiQuery({ name: 'fecha', example: '15/1/2026' })
-  @ApiQuery({ name: 'hora', example: '10:00 AM' })
+  @ApiQuery({ name: 'hora', example: '11:00 - 12:00' })
   @ApiResponse({ status: 200, description: 'Disponibilidad verificada' })
   async verificarDisponibilidad(
     @Query('fecha') fecha: string,

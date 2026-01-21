@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateActividadDto {
   @ApiProperty({
@@ -9,6 +9,15 @@ export class CreateActividadDto {
   @IsNotEmpty({ message: 'El título es obligatorio' })
   @IsString()
   titulo: string;
+
+  @ApiProperty({
+    example: 'Aprende las mejores prácticas',
+    description: 'Subtítulo de la actividad',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  subtitulo?: string;
 
   @ApiProperty({
     example: 'Una conferencia sobre las mejores prácticas en NestJS',

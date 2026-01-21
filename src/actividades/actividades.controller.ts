@@ -34,6 +34,7 @@ export class ActividadesController {
       type: 'object',
       properties: {
         titulo: { type: 'string' },
+        subtitulo: { type: 'string' },
         descripcion: { type: 'string' },
         imagen: { type: 'string', format: 'binary' },
       },
@@ -74,6 +75,7 @@ export class ActividadesController {
       type: 'object',
       properties: {
         titulo: { type: 'string' },
+        subtitulo: { type: 'string' },
         descripcion: { type: 'string' },
         imagen: { type: 'string', format: 'binary' },
       },
