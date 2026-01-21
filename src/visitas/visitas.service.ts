@@ -479,7 +479,7 @@ export class VisitasService {
     // Enviar correo al administrador
     await this.resend.emails.send({
       from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
-      to: ['pabloyucragutierrez@gmail.com'],
+      to: ['residencialasdalias156@gmail.com'],
       subject: `Nueva Solicitud de Visita - ${nombreApellido}`,
       html: htmlEmailAdmin,
     });
