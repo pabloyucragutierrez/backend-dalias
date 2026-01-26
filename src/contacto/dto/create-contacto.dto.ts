@@ -19,6 +19,22 @@ export class CreateContactoDto {
   nombre: string;
 
   @ApiProperty({
+    example: 'juan.perez@email.com',
+    description: 'Correo electrónico del remitente',
+  })
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
+  @IsEmail({}, { message: 'Debe proporcionar un correo electrónico válido' })
+  correo: string;
+
+  @ApiProperty({
+    example: '+51 987 654 321',
+    description: 'Número de móvil del remitente',
+  })
+  @IsNotEmpty({ message: 'El número de móvil es obligatorio' })
+  @IsString()
+  numeroMovil: string;
+
+  @ApiProperty({
     example: 'Quisiera información sobre los servicios disponibles...',
     description: 'Mensaje del contacto',
   })

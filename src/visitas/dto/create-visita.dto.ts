@@ -169,7 +169,7 @@ export class CreateVisitaDto {
   nombreApellido: string;
 
   @ApiProperty({
-    example: 'juan.perez@email.com',
+    example: 'llantauniversity@gmail.com',
     description: 'Correo electrónico del solicitante',
   })
   @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })

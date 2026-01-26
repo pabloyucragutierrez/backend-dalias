@@ -12,7 +12,7 @@ export class ContactoService {
   }
 
   async enviarContacto(createContactoDto: CreateContactoDto) {
-    const { tipoConsulta, nombre, mensaje } = createContactoDto;
+    const { tipoConsulta, nombre, correo, numeroMovil, mensaje } = createContactoDto;
 
     const htmlEmail = `
       <!DOCTYPE html>
@@ -79,7 +79,7 @@ export class ContactoService {
             margin-top: 20px;
           }
           .footer {
-            background-color: #003e5c;
+            background-color: #f5f5ef;
             color: #ffffff;
             text-align: center;
             padding: 20px;
@@ -91,6 +91,7 @@ export class ContactoService {
           }
           .footer p {
             margin: 8px 0;
+            color: #003e5c;
           }
           .footer-socials {
             margin: 15px 0;
@@ -131,6 +132,16 @@ export class ContactoService {
             </div>
             
             <div class="info-row">
+              <div class="info-label">📧 Correo Electrónico</div>
+              <div class="info-value">${correo}</div>
+            </div>
+            
+            <div class="info-row">
+              <div class="info-label">📱 Número de Móvil</div>
+              <div class="info-value">${numeroMovil}</div>
+            </div>
+            
+            <div class="info-row">
               <div class="info-label">🎯 ¿Qué servicio le interesa?</div>
               <div class="info-value">${tipoConsulta}</div>
             </div>
@@ -167,7 +178,7 @@ export class ContactoService {
 
     await this.resend.emails.send({
       from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>',
-      to: ['residencialasdalias156@gmail.com'],
+      to: ['pabloyucragutierrez@gmail.com'],
       subject: `📩 Nueva Consulta: ${tipoConsulta}`,
       html: htmlEmail,
     });
