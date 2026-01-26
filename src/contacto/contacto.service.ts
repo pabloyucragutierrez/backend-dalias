@@ -156,7 +156,7 @@ export class ContactoService {
           
           <div class="footer">
             <p><strong>Residencia Las Dalias</strong></p>
-            <p>Las Dalias 156, La Molina 15024, Perú</p>
+            <p>Las Dalias 156, La Molina 15024, Lima, Perú</p>
             <p>📧 <a href="mailto:residencialasdalias156@gmail.com">residencialasdalias156@gmail.com</a></p>
             
             <div class="footer-socials">

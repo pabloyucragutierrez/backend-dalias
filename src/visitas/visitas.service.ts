@@ -304,7 +304,7 @@ export class VisitasService {
         
         <div class="footer">
           <p><strong>Residencia Las Dalias</strong></p>
-          <p>Las Dalias 156, La Molina 15024, Perú</p>
+          <p>Las Dalias 156, La Molina 15024, Lima, Perú</p>
           <p>📧 <a href="mailto:residencialasdalias156@gmail.com">residencialasdalias156@gmail.com</a></p>
           
           <div class="footer-socials">
@@ -517,7 +517,7 @@ export class VisitasService {
           <div class="info-adicional">
             <h4>📍 Información importante para tu visita:</h4>
             <ul>
-              <li><strong>Dirección:</strong> Las Dalias 156, La Molina 15024, Perú</li>
+              <li><strong>Dirección:</strong> Las Dalias 156, La Molina 15024, Lima, Perú</li>
               <li>Por favor, llega 10 minutos antes de tu cita</li>
               <li>Trae cualquier documento médico relevante que desees compartir</li>
               <li>Si necesitas reprogramar, contáctanos con al menos 24 horas de anticipación</li>
@@ -526,6 +526,7 @@ export class VisitasService {
 
           <div class="contacto-box">
             <h4>¿Tienes alguna pregunta?</h4>
+            <p>📞 Teléfono: <a href="tel:+51981776156">+51 981 776 156</a></p>
             <p>📧 Email: <a href="mailto:residencialasdalias156@gmail.com">residencialasdalias156@gmail.com</a></p>
             <p>Estamos aquí para ayudarte en lo que necesites</p>
           </div>
@@ -537,7 +538,7 @@ export class VisitasService {
         
         <div class="footer">
           <p><strong>Residencia Las Dalias</strong></p>
-          <p>Las Dalias 156, La Molina 15024, Perú</p>
+          <p>Las Dalias 156, La Molina 15024, Lima, Perú</p>
           <p>📧 <a href="mailto:residencialasdalias156@gmail.com">residencialasdalias156@gmail.com</a></p>
           
           <div class="footer-socials">
