@@ -25,12 +25,16 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3001);
-  console.log(`🚀 Aplicación corriendo en: http://localhost:3001`);
-  console.log(`📚 Documentación Swagger: http://localhost:3001/api/docs`);
+  // 🚨 IMPORTANTE: usar el puerto que asigna Render
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+
+  console.log(`🚀 Aplicación corriendo en el puerto: ${port}`);
+  console.log(`📚 Swagger disponible en /api/docs`);
 }
+
 bootstrap();
