@@ -54,6 +54,7 @@ model Visita {
   id                  Int      @id @default(autoincrement())
   nombreApellido      String
   correoElectronico   String
+  telefono            String   @default("No proporcionado")  
   edadAdultoMayor     Int
   nivelDependencia    String
   observacionesSalud  String?  @db.Text

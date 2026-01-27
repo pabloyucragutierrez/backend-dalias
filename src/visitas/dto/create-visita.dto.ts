@@ -177,6 +177,14 @@ export class CreateVisitaDto {
   correoElectronico: string;
 
   @ApiProperty({
+    example: '+51987654321',
+    description: 'Número de teléfono/móvil del solicitante',
+  })
+  @IsNotEmpty({ message: 'El teléfono es obligatorio' })
+  @IsString()
+  telefono: string;
+
+  @ApiProperty({
     example: 75,
     description: 'Edad del adulto mayor',
   })
