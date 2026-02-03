@@ -1,14 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateContactoDto {
   @ApiProperty({
     example: 'Información sobre residencia',
     description: 'Tipo de consulta o servicio de interés',
+    required: false,
   })
-  @IsNotEmpty({ message: 'El tipo de consulta es obligatorio' })
+  @IsOptional()
   @IsString()
-  tipoConsulta: string;
+  tipoConsulta?: string;
 
   @ApiProperty({
     example: 'Juan Pérez García',

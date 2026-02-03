@@ -14,6 +14,18 @@ export class ContactoService {
   async enviarContacto(createContactoDto: CreateContactoDto) {
     const { tipoConsulta, nombre, correo, numeroMovil, mensaje } = createContactoDto;
 
+    const tipoConsultaRow = tipoConsulta
+      ? `
+            <div class="info-row">
+              <div class="info-label">🎯 ¿Qué servicio le interesa?</div>
+              <div class="info-value">${tipoConsulta}</div>
+            </div>`
+      : '';
+
+    const subject = tipoConsulta
+      ? `📩 Nueva Consulta: ${tipoConsulta}`
+      : '📩 Nueva Consulta Recibida';
+
     const htmlEmail = `
       <!DOCTYPE html>
       <html lang="es">
@@ -140,11 +152,8 @@ export class ContactoService {
               <div class="info-label">📱 Número de Móvil</div>
               <div class="info-value">${numeroMovil}</div>
             </div>
-            
-            <div class="info-row">
-              <div class="info-label">🎯 ¿Qué servicio le interesa?</div>
-              <div class="info-value">${tipoConsulta}</div>
-            </div>
+
+            ${tipoConsultaRow}
             
             <div class="info-row">
               <div class="info-label">💬 Mensaje</div>
@@ -179,7 +188,7 @@ export class ContactoService {
     await this.resend.emails.send({
       from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>',
       to: ['residencialasdalias156@gmail.com'],
-      subject: `📩 Nueva Consulta: ${tipoConsulta}`,
+      subject,
       html: htmlEmail,
     });
 
