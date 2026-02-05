@@ -18,7 +18,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         return {
           secret: configService.get<string>('JWT_SECRET') || 'tu_secreto_super_seguro_cambialo_en_produccion',
           signOptions: { 
-            expiresIn: '1d', // Cambiado a string literal en lugar de variable
+            expiresIn: '1d',
           },
         };
       },

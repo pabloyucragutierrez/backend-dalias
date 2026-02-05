@@ -14,21 +14,18 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const { username, password } = loginDto;
 
-    // Buscar usuario
     const user = await this.usersService.findByUsername(username);
     
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // Verificar contraseña
     const isPasswordValid = await bcrypt.compare(password, user.password);
     
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // Generar token
     const payload = { username: user.username, sub: user.id };
     const access_token = this.jwtService.sign(payload);
 

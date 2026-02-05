@@ -31,7 +31,7 @@ export class VisitasService {
     const {
       nombreApellido,
       correoElectronico,
-      telefono, // ✅ NUEVO CAMPO
+      telefono,
       edadAdultoMayor,
       nivelDependencia,
       observacionesSalud,
@@ -40,7 +40,6 @@ export class VisitasService {
       evaluacion,
     } = createVisitaDto;
 
-    // Verificar si ya existe una cita en esa fecha y hora
     const citaExistente = await this.prisma.visita.findUnique({
       where: {
         fechaSeleccionada_horaSeleccionada: {
@@ -56,12 +55,11 @@ export class VisitasService {
       );
     }
 
-    // Guardar la cita en la base de datos
     await this.prisma.visita.create({
       data: {
         nombreApellido,
         correoElectronico,
-        telefono, // ✅ NUEVO CAMPO
+        telefono, 
         edadAdultoMayor,
         nivelDependencia,
         observacionesSalud,
@@ -72,7 +70,6 @@ export class VisitasService {
       },
     });
 
-    // Generar HTML de evaluación si existe
     let evaluacionHtml = '';
     let perfilGlobalHtml = '';
 
@@ -80,7 +77,6 @@ export class VisitasService {
       const conclusiones = this.generarConclusionesEvaluacion(evaluacion);
       const perfilGlobal = this.calcularPerfilGlobal(conclusiones);
 
-      // Generar HTML con las conclusiones
       evaluacionHtml = `
     <div class="evaluacion-section">
       <h3 style="color: #003e5c; margin-top: 30px; margin-bottom: 20px; border-bottom: 3px solid #d9b756; padding-bottom: 10px;">
@@ -104,7 +100,6 @@ export class VisitasService {
     </div>
   `;
 
-      // Generar HTML del perfil global
       perfilGlobalHtml = `
     <div class="perfil-global" style="background: linear-gradient(135deg, #003e5c 0%, #005a7f 100%); color: white; padding: 25px; border-radius: 10px; margin: 30px 0; text-align: center;">
       <h3 style="color: #d9b756; margin: 0 0 15px 0; font-size: 22px;">
@@ -125,7 +120,6 @@ export class VisitasService {
   `;
     }
 
-    // EMAIL PARA LA RESIDENCIA (administrador)
     const htmlEmailAdmin = `
   <!DOCTYPE html>
   <html lang="es">
@@ -565,7 +559,6 @@ export class VisitasService {
   </html>
 `;
 
-    // Enviar correo al administrador
     await this.resend.emails.send({
       from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
       to: ['residencialasdalias156@gmail.com'],
@@ -573,7 +566,6 @@ export class VisitasService {
       html: htmlEmailAdmin,
     });
 
-    // Enviar correo de confirmación al cliente
     await this.resend.emails.send({
       from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
       to: [correoElectronico],
@@ -587,13 +579,11 @@ export class VisitasService {
     };
   }
 
-  // NUEVO MÉTODO: Generar conclusiones de la evaluación
   private generarConclusionesEvaluacion(
     evaluacion: any,
   ): ConclusionEvaluacion[] {
     const conclusiones: ConclusionEvaluacion[] = [];
 
-    // 1. Autonomía y movilidad
     if (evaluacion.movilidad) {
       const movilidadMap = {
         solo: {
@@ -628,7 +618,6 @@ export class VisitasService {
       }
     }
 
-    // 2. Actividades de la Vida Diaria (AVD)
     if (evaluacion.avd) {
       const avdMap = {
         independiente: {
@@ -660,7 +649,6 @@ export class VisitasService {
       }
     }
 
-    // 3. Estado cognitivo
     if (evaluacion.cognitivo) {
       const cognitivoMap = {
         'sin-dificultades': {
@@ -693,7 +681,6 @@ export class VisitasService {
       }
     }
 
-    // 4. Estado emocional y conducta
     if (evaluacion.emocional) {
       const emocionalMap = {
         estable: {
@@ -727,7 +714,6 @@ export class VisitasService {
       }
     }
 
-    // 5. Condiciones médicas relevantes
     if (evaluacion.condiciones) {
       const condicionesTexto: string[] = [];
 
@@ -757,12 +743,11 @@ export class VisitasService {
         conclusiones.push({
           pregunta: '5. Condiciones médicas relevantes',
           conclusion: condicionesTexto.join(', '),
-          porcentaje: 0, // No se usa para el cálculo del promedio
+          porcentaje: 0, 
         });
       }
     }
 
-    // 6. Medicación y cuidados especiales
     if (evaluacion.medicacion) {
       const medicacionMap = {
         no: {
@@ -792,7 +777,6 @@ export class VisitasService {
       }
     }
 
-    // 7. Motivo principal de la consulta
     if (evaluacion.motivo) {
       const motivoMap = {
         'centro-dia': {
@@ -832,11 +816,9 @@ export class VisitasService {
     return conclusiones;
   }
 
-  // NUEVO MÉTODO: Calcular perfil global
   private calcularPerfilGlobal(
     conclusiones: ConclusionEvaluacion[],
   ): PerfilGlobal {
-    // Filtrar solo las conclusiones que tienen porcentaje válido (excluir condiciones médicas)
     const conclusionesConPorcentaje = conclusiones.filter(
       (c) => c.porcentaje > 0,
     );
@@ -849,7 +831,6 @@ export class VisitasService {
       };
     }
 
-    // Calcular promedio
     const sumaPorcentajes = conclusionesConPorcentaje.reduce(
       (sum, c) => sum + c.porcentaje,
       0,
@@ -858,7 +839,6 @@ export class VisitasService {
       sumaPorcentajes / conclusionesConPorcentaje.length,
     );
 
-    // Determinar clasificación según el porcentaje
     let clasificacion = '';
     let descripcion = '';
 
@@ -926,35 +906,29 @@ export class VisitasService {
   private formatearRespuesta(valor: string): string {
     if (!valor) return 'No especificado';
     const respuestas = {
-      // Movilidad
       solo: 'Se moviliza solo',
       'apoyo-parcial': 'Necesita apoyo parcial',
       'ayuda-constante': 'Requiere ayuda constante',
       'en-cama': 'Permanece mayormente en cama',
 
-      // AVD
       independiente: 'De forma independiente',
       supervision: 'Con supervisión',
       'no-puede': 'No puede realizarlas solo',
 
-      // Cognitivo
       'sin-dificultades': 'No presenta dificultades',
       'olvidos-ocasionales': 'Olvidos ocasionales',
       'confusion-frecuente': 'Confusión frecuente',
       'diagnostico-deterioro': 'Diagnóstico de deterioro cognitivo o demencia',
 
-      // Emocional
       estable: 'Estable y tranquilo',
       'a-veces-triste': 'A veces triste o ansioso',
       irritable: 'Frecuentemente irritable o deprimido',
       'cambios-conducta': 'Presenta cambios de conducta importantes',
 
-      // Medicación
       no: 'No',
       recordatorio: 'Sí, recordatorio',
       'administracion-completa': 'Sí, administración completa',
 
-      // Motivo
       'cuidado-permanente': 'Cuidado permanente',
       'recuperacion-temporal': 'Recuperación temporal / post operatoria',
       'centro-dia': 'Centro de día',

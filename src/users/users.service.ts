@@ -11,7 +11,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { username, email, password, nombre, apellido } = createUserDto;
 
-    // Verificar si el usuario ya existe
     const existingUser = await this.prisma.user.findFirst({
       where: {
         OR: [{ username }, { email }],
@@ -27,10 +26,8 @@ export class UsersService {
       }
     }
 
-    // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear usuario
     const user = await this.prisma.user.create({
       data: {
         username,
@@ -41,7 +38,6 @@ export class UsersService {
       },
     });
 
-    // Retornar sin la contraseña
     const { password: _, ...result } = user;
     return result;
   }
@@ -53,7 +49,6 @@ export class UsersService {
       },
     });
 
-    // Retornar sin las contraseñas
     return users.map(user => {
       const { password, ...result } = user;
       return result;
@@ -80,7 +75,6 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    // Verificar que el usuario existe
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -89,7 +83,6 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    // Verificar si el nuevo username o email ya están en uso por otro usuario
     if (updateUserDto.username || updateUserDto.email) {
       const existingUser = await this.prisma.user.findFirst({
         where: {
@@ -115,25 +108,21 @@ export class UsersService {
       }
     }
 
-    // Si se está actualizando la contraseña, encriptarla
     let dataToUpdate: any = { ...updateUserDto };
     if (updateUserDto.password) {
       dataToUpdate.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // Actualizar usuario
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: dataToUpdate,
     });
 
-    // Retornar sin la contraseña
     const { password: _, ...result } = updatedUser;
     return result;
   }
 
   async remove(id: number) {
-    // Verificar que el usuario existe
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -142,7 +131,6 @@ export class UsersService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    // Eliminar usuario (los blogs se eliminarán en cascada según el schema)
     await this.prisma.user.delete({
       where: { id },
     });
