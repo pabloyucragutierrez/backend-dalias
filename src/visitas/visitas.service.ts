@@ -560,14 +560,14 @@ export class VisitasService {
 `;
 
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
+      from: 'Residencia Las Dalias <visitas@residencialasdalias.pe>',
       to: ['residencialasdalias156@gmail.com'],
       subject: `Nueva Solicitud de Visita - ${nombreApellido}`,
       html: htmlEmailAdmin,
     });
 
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <visitas@pablogutierrezz.com>',
+      from: 'Residencia Las Dalias <visitas@residencialasdalias.pe>',
       to: [correoElectronico],
       subject: `✅ Confirmación de Visita - Residencia Las Dalias`,
       html: htmlEmailCliente,

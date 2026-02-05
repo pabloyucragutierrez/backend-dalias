@@ -186,7 +186,7 @@ export class ContactoService {
     `;
 
     await this.resend.emails.send({
-      from: 'Residencia Las Dalias <contacto@pablogutierrezz.com>',
+      from: 'Residencia Las Dalias <contacto@residencialasdalias.pe>',
       to: ['residencialasdalias156@gmail.com'],
       subject,
       html: htmlEmail,
